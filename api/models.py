@@ -34,3 +34,15 @@ class Order(Document):
 
     def __str__(self):
         return f"{self.quantity} {self.item.name}"
+
+
+class User(Document):
+    username = StringField(max_length=100, required=True, unique=True)
+    email = StringField(required=True, unique=True)
+    password = StringField(required=True)
+    created_at = DateTimeField(default=datetime.utcnow)
+
+    meta = {"collection": "users"}
+
+    def __str__(self):
+        return self.username

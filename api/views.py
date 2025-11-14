@@ -1,11 +1,14 @@
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from api.services.auth import login, register
 from api.services.customers import getCustomer, getCustomers
 from api.services.orders import createOrder, getOrder, getOrders
 
-from .services.items import createItem, deleteItem, getItem, getItems, updateItem
+from .services.items import (createItem, deleteItem, getItem, getItems,
+                             updateItem)
 
 
 @api_view(["GET", "POST"])
@@ -131,6 +134,40 @@ def customer_management(request, pk):
         if customer["success"]:
             return Response(customer["data"], status=status.HTTP_200_OK)
         return Response(customer["errors"], status=status.HTTP_404_NOT_FOUND)
+    return Response(
+        {"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED
+    )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def register_view(request):
+    """
+    Handle POST (register new user) requests.
+    Public endpoint - no authentication required.
+    """
+    if request.method == "POST":
+        result = register(request.data)
+        if result["success"]:
+            return Response(result["data"], status=status.HTTP_201_CREATED)
+        return Response(result["errors"], status=status.HTTP_400_BAD_REQUEST)
+    return Response(
+        {"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED
+    )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def login_view(request):
+    """
+    Handle POST (login user) requests.
+    Public endpoint - no authentication required.
+    """
+    if request.method == "POST":
+        result = login(request.data)
+        if result["success"]:
+            return Response(result["data"], status=status.HTTP_200_OK)
+        return Response(result["errors"], status=status.HTTP_401_UNAUTHORIZED)
     return Response(
         {"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED
     )

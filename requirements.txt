@@ -1,5 +1,7 @@
 Django==5.2.8
 djangorestframework
+djangorestframework-simplejwt
 mongoengine
 pymongo
+legacy-cgi
 

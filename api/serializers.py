@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Customer, Item, Order
+from .models import Customer, Item, Order, User
 
 
 class ItemSerializer(serializers.Serializer):
@@ -40,6 +40,31 @@ class OrderSerializer(serializers.Serializer):
         return Order.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
+
+
+class UserSerializer(serializers.Serializer):
+    id = serializers.CharField(read_only=True)
+    username = serializers.CharField(max_length=100)
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
+
+    def create(self, validated_data):
+        # Hash the password before saving
+        from django.contrib.auth.hashers import make_password
+        password = validated_data.pop("password")
+        validated_data["password"] = make_password(password)
+        return User.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        # Hash password if it's being updated
+        if "password" in validated_data:
+            from django.contrib.auth.hashers import make_password
+            validated_data["password"] = make_password(validated_data["password"])
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
