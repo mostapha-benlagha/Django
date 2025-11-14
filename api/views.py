@@ -1,5 +1,6 @@
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import (api_view, authentication_classes,
+                                       permission_classes)
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
@@ -140,6 +141,7 @@ def customer_management(request, pk):
 
 
 @api_view(["POST"])
+@authentication_classes([])  # No authentication required
 @permission_classes([AllowAny])
 def register_view(request):
     """
@@ -157,6 +159,7 @@ def register_view(request):
 
 
 @api_view(["POST"])
+@authentication_classes([])  # No authentication required - skip token validation
 @permission_classes([AllowAny])
 def login_view(request):
     """

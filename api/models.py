@@ -46,3 +46,18 @@ class User(Document):
 
     def __str__(self):
         return self.username
+
+    @property
+    def is_authenticated(self):
+        """Required by Django REST Framework for authentication checks."""
+        return True
+
+    @property
+    def is_active(self):
+        """Required by Django REST Framework for permission checks."""
+        return True
+
+    @property
+    def is_anonymous(self):
+        """Required by Django REST Framework for authentication checks."""
+        return False

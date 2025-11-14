@@ -2,6 +2,7 @@ from api.models import User
 from api.serializers import UserSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import check_password
+from mongoengine import NotUniqueError, ValidationError
 
 
 def register(data):
@@ -10,7 +11,19 @@ def register(data):
     """
     serializer = UserSerializer(data=data)
     if serializer.is_valid():
-        user = serializer.save()
+
+        try:
+            user = serializer.save()
+        except (ValidationError, NotUniqueError) as e:
+            if isinstance(e, NotUniqueError):
+                return {
+                    "success": False,
+                    "errors": {"detail": "User already exists"},
+                }
+            return {
+                "success": False,
+                "errors": {"detail": str(e)},
+            }
 
         # Generate JWT tokens for the newly registered user
         refresh = RefreshToken()
